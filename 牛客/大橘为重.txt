@@ -1,1 +1,62 @@
+原题为牛客贝壳2022笔试题第三题
+链接：https://www.nowcoder.com/test/35148612/summary
 
+思路：由于橘子重量给出，可先爆搜所有可能的重量，之后比对
+该题主要是dfs边界的判断，
+边界1：每次有两种策略，若选择后有一种数量为空，则返回，其会造成死递归，代码中使用了排序，体现为a[l] == a[r]，在这种情况下avg = a[l] = a[r],会造成全选与全不选
+边界2：单个数据情况，也会造成全选全部选情况
+
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+#include <unordered_set>
+typedef long long LL;
+using namespace std;
+const int N = 1e5 + 10;
+int a[N];
+LL pre[N];
+unordered_set<LL> set;
+
+int find(int l, int r, LL target) {
+    while (l < r) {
+        int mid = l + r + 1 >> 1;
+        if (a[mid] > target) r = mid - 1;
+        else l = mid;
+    }
+    return l;
+}
+
+void dfs(int l, int r) {
+    if (l > r) return ;
+    LL sum = pre[r + 1] - pre[l];
+    set.insert(sum);
+    if (l == r) return;
+    if (a[l] == a[r]) return ;
+    LL avg = sum / (r - l + 1);
+    int mid = find(l, r, avg);
+
+    dfs(l, mid);
+    dfs(mid + 1, r);
+}
+
+int main() {
+    int n, q;
+    scanf("%d%d", &n, &q);
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &a[i]);
+    }
+    sort(a, a + n);
+
+    for (int i = 1; i <= n; i++) {
+        pre[i] = pre[i - 1] + a[i - 1];
+    }
+    dfs(0, n - 1);
+    for (int i = 0; i < q; i++) {
+        int s;
+        scanf("%lld", &s);
+        if (set.count(s)) printf("YES\n");
+        else printf("NO\n");
+    }
+    return 0;
+}

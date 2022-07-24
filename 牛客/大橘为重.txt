@@ -1,5 +1,5 @@
-原题为牛客贝壳2022笔试题第三题
-链接：https://www.nowcoder.com/test/35148612/summary
+原题为牛客贝壳2021笔试题第三题
+链接：https://www.nowcoder.com/test/35148512/summary
 
 思路：由于橘子重量给出，可先爆搜所有可能的重量，之后比对
 该题主要是dfs边界的判断，

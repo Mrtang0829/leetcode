@@ -1,0 +1,7 @@
+普通插入（全字段）：INSERT INTO table_name VALUES (value1, value2, ...)
+普通插入（限定字段）：INSERT INTO table_name (column1, column2, ...) VALUES (value1, value2, ...)
+多条一次性插入：INSERT INTO table_name (column1, column2, ...) VALUES (value1_1, value1_2, ...), (value2_1, value2_2, ...), ...
+从另一个表导入：INSERT INTO table_name SELECT * FROM table_name2 [WHERE key=value]
+
+replace into 跟 insert into功能类似，不同点在于：replace into 首先尝试插入数据到表中，
+如果发现表中已经有此行数据（根据主键或者唯一索引判断）则先删除此行数据，然后插入新的数据;否则，直接插入新数据。

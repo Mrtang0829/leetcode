@@ -1,0 +1,2 @@
+根据条件删除：DELETE FROM tb_name [WHERE options] [ [ ORDER BY fields ] LIMIT n ]
+全部删除（表清空，包含自增计数器重置）：TRUNCATE tb_name

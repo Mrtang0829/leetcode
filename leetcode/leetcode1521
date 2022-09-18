@@ -1,0 +1,33 @@
+解析 ：
+题目数据量 n = 1e5,推断复杂度 nlogn
+题目数据值大小 1e6 -> 大概20位 -> C = 20
+题目定义的 & 运算，
+  1 ：& 运算值只会越 & 越小
+  2 ：每次 & 只会将 一部分 1 替换成 0
+考虑 nlogn -> nlogC
+使用set保存递推过程中的数据， 递推过程中，集合元素 <= C
+
+注意：递推过程中集合需要添加当前节点作为一个起点
+
+
+class Solution {
+public:
+    int closestToTarget(vector<int>& arr, int target) {
+        int res = abs(target - arr[0]);
+        unordered_set<int> set;
+        set.insert(arr[0]);
+
+        for (const auto& num : arr) {
+            unordered_set<int> curr;
+            curr.insert(num);
+            res = min(res, abs(target - num));
+            for (const auto& prev : set) {
+                int val = prev & num;
+                curr.insert(val);
+                res = min(res, abs(target - val));
+            }
+            set = curr;
+        }
+        return res;
+    }
+};

@@ -1,0 +1,41 @@
+//
+// Created by Laymedown on 2022/10/1.
+//
+
+#include "iostream"
+#include "algorithm"
+#include "vector"
+#include "tuple"
+using namespace std;
+
+// c++ 自定义排序
+// 将 p 中元素根据 t 中元素排序
+int main() {
+    vector<int> p = {0,1,2,3,4,5,6,7,8,9};
+    vector<int> t = {9,8,7,6,5,4,3,2,1,0};
+    
+    vector<tuple<int, int, int>> v;
+    for (int i = 0; i < p.size(); ++i) {
+        v.emplace_back(p[i], t[i], i);
+    }
+
+    // tuple 中元素的获取
+//    get<0>(v[0]);
+//    tuple<int, int, int> _tuple = v[0];
+//    auto [k, c, s] = v[0];
+//    cout << k << ' ' << c << ' ' << s << endl;
+
+    sort(v.begin(), v.end(), [](const auto& a, const auto& b){
+        auto [a1, a2, a3] = a;
+        auto [b1, b2, b3] = b;
+        if (a2 == b2) return a3 < b3;
+        return a2 < b2;
+    });
+//    sort(p.begin(), p.end(), [](const int& a, const int& b) {
+//        return a > b;
+//    });
+
+    for (auto [k, _, __] : v) {
+        cout << k << ' ';
+    }
+}

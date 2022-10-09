@@ -17,3 +17,5 @@ LL query(int x, int offset) {
     for (int i = x + offset; i; i -= lowbit(i)) res += p[i];
     return res;
 }
+
+memset(p, 0, sizeof(p));

@@ -19,3 +19,47 @@ LL query(int x, int offset) {
 }
 
 memset(p, 0, sizeof(p));
+
+
+######################################################################
+例题：
+leetcode-307:直接拍板子
+
+const int N = 1e5 + 10;
+typedef long long LL;
+class NumArray {
+public:
+    int p[N], offset = 0;
+    int lowbit(int x) {
+        return x & -x;
+    }
+    void add(int x, int k) {
+        for (int i = x + offset; i <= N; i += lowbit(i)) p[i] += k;
+    }
+
+    LL query(int x) {
+        LL res = 0;
+        for (int i = x + offset; i; i -= lowbit(i)) res += p[i];
+        return res;
+    }
+
+    NumArray(vector<int>& nums) {
+        memset(p, 0, sizeof(p));
+        offset = 1;
+        for (int i = 0; i < nums.size(); i++) {
+            add(i, nums[i]);
+        }
+    }
+    
+    void update(int index, int val) {
+        // 对应 idx 本身的值为 v
+        int v = query(index) - query(index - 1);
+        add(index, val - v);
+    }
+    
+    int sumRange(int left, int right) {
+       return query(right) - query(left - 1);
+    }
+};
+
+

@@ -1,7 +1,7 @@
 const int N = 1e5 + 10;
 typedef long long LL;
 
-int p[N], offset = 3e4 + 10;
+int p[N], offset = 0;
 
 int lowbit(int x) {
     return x & -x;

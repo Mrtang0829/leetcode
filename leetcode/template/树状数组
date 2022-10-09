@@ -1,0 +1,19 @@
+const int N = 1e5 + 10;
+typedef long long LL;
+
+int p[N];
+
+int lowbit(int x) {
+    return x & -x;
+}
+
+// 注意 : 不能从0开始, 若数据中可能存在 x = 0, 使用较大的offset
+void add(int x, int offset, int k) {
+    for (int i = x + offset; i <= N; i += lowbit(i)) p[i] += k;
+}
+
+LL query(int x, int offset) {
+    LL res = 0;
+    for (int i = x + offset; i; i -= lowbit(i)) res += p[i];
+    return res;
+}

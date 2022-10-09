@@ -1,14 +1,8 @@
-#include <iostream>
-#include <cstring>
-#include <algorithm>
-
 typedef unsigned long long ULL;
 
 // 字符串长度
 const int N = 100010;
-using namespace std;
 
-char str[N];
 ULL p[N], h[N];
 int n, m, P = 131;
 
@@ -16,23 +10,49 @@ ULL get(int l, int r) {
     return h[r] - h[l - 1] * p[r - l + 1];
 }
 
-void do(string str) {
+void doing(string str) {
   p[0] = 1;
+  // 注意 str[i]的下标，从0开始则为 str[i - 1]
   for (int i = 1; i <= n; i++) {
       p[i] = p[i - 1] * P;
       h[i] = h[i - 1] * P + str[i];
   }
 }
 
-int main()
-{
-    scanf("%d%d%s", &n, &m, str + 1);
-    do(str);
-    while (m -- ) {
-        int l1, l2, r1, r2;
-        scanf("%d%d%d%d", &l1, &r1, &l2, &r2);
-        if (get(l1, r1) == get(l2, r2)) puts("Yes");
-        else puts("No");
+####################################################
+
+leetcode-2430: dp 过程中状态判定使用 字符串哈希加速
+
+typedef unsigned long long ULL;
+const int N = 5000;
+class Solution {
+public:
+
+    ULL p[N], h[N];
+    int P = 131;
+
+    ULL get(int l, int r) {
+        return h[r] - h[l - 1] * p[r - l + 1];
     }
-    return 0;
-}
+
+    void doing(string s) {
+        p[0] = 1;
+        for (int i = 1; i <= s.size(); i++) {
+            p[i] = p[i - 1] * P;
+            h[i] = h[i - 1] * P + s[i - 1];
+        }
+    }   
+
+    int deleteString(string s) {
+        int n = s.size();
+        vector<int> dp(n + 1, 0);
+        doing(s);
+        for (int i = n; i; i--) {
+            dp[i] = 1;
+            for (int j = 1; j <= (n - i + 1) / 2; j++) {
+                if (get(i, i + j - 1) == get(i + j, i + 2 * j - 1)) dp[i] = max(dp[i], dp[i + j] + 1);
+            }
+        }
+        return dp[1];
+    }
+};

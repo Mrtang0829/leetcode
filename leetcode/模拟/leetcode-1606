@@ -1,1 +1,33 @@
+这种类型的题目一般使用优先队列存储正在工作的服务器
 
+class Solution {
+public:
+    vector<int> busiestServers(int k, vector<int>& start, vector<int>& load) {
+        set<int> free;
+        for (int i = 0; i < k; i++) free.insert(i);
+        priority_queue<pair<int, int>, vector<pair<int,int>>, greater<>> pq;
+        vector<int> request(k, 0);
+
+        for (int i = 0; i < start.size(); i++) {
+            int st = start[i];
+            while (pq.size() && pq.top().first <= st) {
+                int idx = pq.top().second;
+                pq.pop();
+                free.insert(idx);
+            }
+            if (free.empty()) continue;
+
+            auto p = free.lower_bound(i % k);
+            if (p == free.end()) p = free.begin();
+            request[*p]++;
+            pq.push({st + load[i], *p});
+            free.erase(p);
+        }
+        vector<int> res;
+        int maxv = *max_element(request.begin(), request.end());
+        for (int i = 0; i < k; i++) {
+            if (request[i] == maxv) res.push_back(i);
+        }
+        return res;
+    }
+};

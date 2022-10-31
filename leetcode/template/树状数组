@@ -1,3 +1,5 @@
+
+######## first -> 基本模板 ########################################################
 const int N = 1e5 + 10;
 typedef long long LL;
 
@@ -19,7 +21,7 @@ LL query(int x) {
 
 memset(p, 0, sizeof(p));
 
-
+######## second -> 附加离散化操作防止数值越界########################################
 有时需要离散化操作
 
 将需要操作的数放到v数组中
@@ -36,6 +38,11 @@ int find(vector<int>& v, int k) {
     }
     return l + 1; // 避免返回下标0
 }
+
+######## third -> 处理区间最值问题 
+此类问题与前序的维护前缀和问题复杂度不同 -> 其为 nlogn^2 ，而维护前缀和问题为 nlogn
+具体讲解 ： https://blog.csdn.net/u010598215/article/details/48206959
+典型例题 ： leetcode : 2407
 
 ######################################################################
 例题：
@@ -180,5 +187,48 @@ public:
             add(ed_idx, val);
         }
         return res;
+    }
+};
+
+
+leetcode-2407:维护区间最值的例题 ###############################################
+const int N = 1e5 + 10;
+typedef long long LL;
+class Solution {
+public:
+    int p[N], dp[N];
+
+    int lowbit(int x) {
+        return x & -x;
+    }
+    // 注意 p[x] 维护的是 [x - lowbit(x) + 1, x]的最值
+    void add(int x, int k) {
+        for (int i = x; i <= N; i += lowbit(i)) p[i] = max(p[i], k);
+    }
+
+    // nums[i] - k ~ nums[i] - 1
+    int query(int x, int y) {
+        int res = 0;
+        while (y >= x) {
+            res = max(dp[y], res);
+            y--;
+            // 若 x = 0会死循环
+            for (; y - lowbit(y) >= x; y -= lowbit(y)) res = max(res, p[y]);
+        }
+        return res;
+    }
+
+    // dp[i] 表示nums[0 ~ i]组成的最大序列
+    // 对于当前数 nums[i], 前一个数 >=nums[i] - k
+    int lengthOfLIS(vector<int>& nums, int k) {
+        int n = nums.size();
+        int res = -1;
+        for (int i = 0; i < n; i++) {
+            int v = nums[i];
+            int x = query(max(nums[i] - k, 1), nums[i] - 1);
+            dp[v] = max(dp[v], x + 1);
+            add(v, x + 1);
+        }
+        return query(1, N - 1);
     }
 };

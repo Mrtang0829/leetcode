@@ -1,7 +1,7 @@
 const int N = 1e5 + 10;
 
 int dfn[N], low[N];
-int cnt = 0;
+int dfs_id = 0;
 vector<vector<int>> ans;
 
 memset(dfn, 0, n * sizeof(int));
@@ -15,7 +15,7 @@ tarjan(g, 0, -1);
 
 void tarjan(vector<vector<int>>& g, int u, int p) {
     if (dfn[u] != 0) return ;
-    dfn[u] = low[u] = ++cnt;
+    dfn[u] = low[u] = ++dfs_id;
     for (auto& v : g[u]) {
         if (v == p) continue;
         if (!dfn[v]) {

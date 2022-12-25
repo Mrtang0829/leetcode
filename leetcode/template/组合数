@@ -1,0 +1,17 @@
+Cnk = n! / (k! * (n - k)!)
+由于一般题目要取模，而 (a / b) % mod != (a % mod) / (b % mod),因此引入逆元
+
+// (a / b) % mod
+LL div(LL a, LL b) {
+    return a * qmi(b, mod - 2) % mod;
+}
+// 快速幂
+LL qmi(LL a, LL b) {
+    LL res = 1;
+    while (b) {
+        if (b & 1) res = res * a % mod;
+        b >>= 1;
+        a = a * a % mod;
+    }
+    return res;
+}

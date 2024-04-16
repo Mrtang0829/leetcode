@@ -1,0 +1,179 @@
+package life.tz.data_structure.stringHash;
+
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.apache.commons.collections.CollectionUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class template {
+}
+
+class StringHash{
+
+    long[] p, h;
+    long P = 1331, mod = (long)1e9 + 7;
+
+    public StringHash(int len) {
+        p = new long[len + 2];
+        h = new long[len + 2];
+    }
+
+    public StringHash(int len, long base, long mod) {
+        this(len);
+        this.P = base; this.mod = mod;
+    }
+
+    public void hash(List<Integer> list) {
+        int n = list.size();
+        p[0] = 1;
+        for (int i = 1; i <= n; i++) {
+            p[i] = p[i - 1] * P % mod;
+            h[i] = (h[i - 1] * P % mod + list.get(i - 1)) % mod;
+        }
+    }
+
+    public void hash(int[] array) {
+        Integer[] arrays = new Integer[array.length];
+        for (int i = 0; i < array.length; i++) arrays[i] = array[i];
+        List<Integer> list = Arrays.stream(arrays).collect(Collectors.toList());
+        hash(list);
+    }
+
+    public long get(int l, int r) {
+        return h[r] - h[l - 1] * p[r - l + 1];
+    }
+}
+
+
+class DoubleStringHash{
+
+    long[] p1, h1, p2, h2;
+    long P1 = 1331, P2 = 13331, mod1 = (long)1e9 + 7, mod2 = (long)1e9 + 9;
+
+    public DoubleStringHash(int len) {
+        p1 = new long[len + 2];
+        h1 = new long[len + 2];
+        p2 = new long[len + 2];
+        h2 = new long[len + 2];
+    }
+    public DoubleStringHash(int len, long base1, long mod1, long base2, long mod2) {
+        this(len);
+        this.P1 = base1; this.mod1 = mod1;
+        this.P2 = base2; this.mod2 = mod2;
+    }
+
+    public void hash(List<Integer> list) {
+        int n = list.size();
+        p1[0] = 1; p2[0] = 1;
+        for (int i = 1; i <= n; i++) {
+            p1[i] = p1[i - 1] * P1 % mod1;
+            p2[i] = p2[i - 1] * P2 % mod2;
+            h1[i] = (h1[i - 1] * P1 % mod1 + list.get(i - 1)) % mod1;
+            h2[i] = (h2[i - 1] * P2 % mod2 + list.get(i - 1)) % mod2;
+        }
+    }
+
+    public long get1(int l, int r) {
+        return (h1[r] - h1[l - 1] * p1[r - l + 1] % mod1 + mod1) % mod1;
+    }
+
+    public long get2(int l, int r) {
+        return (h2[r] - h2[l - 1] * p2[r - l + 1] % mod2 + mod2) % mod2;
+    }
+}
+
+
+class MultiStringHash{
+
+    List<Long>[] p, h;
+    long P = 1331, mod = (long)1e9 + 7;
+
+    public MultiStringHash(int len) {
+        p = new ArrayList[len + 1];
+        h = new ArrayList[len + 1];
+    }
+
+    public MultiStringHash(int len, long base, long mod) {
+        this(len);
+        this.P = base; this.mod = mod;
+    }
+
+    public void hash(List<List<Integer>> list) {
+        for (int i = 0; i < list.size(); i++) {
+            int size = list.get(i).size();
+            p[i]= new ArrayList<>(size + 1);
+            h[i]= new ArrayList<>(size + 1);
+            p[i].add(1L);
+            h[i].add(1L);
+            for (int k = 1; k <= size; k++) {
+                p[i].add(k, p[i].get(k - 1) * P % mod);
+                h[i].add(k, (h[i].get(k - 1) * P % mod + list.get(i).get(k - 1)) % mod);
+            }
+        }
+    }
+
+    public long get(int idx, int l, int r) {
+        return (h[idx].get(r) - h[idx].get(l - 1) * p[idx].get(r - l + 1) % mod + mod) % mod;
+    }
+}
+
+
+class MultiDoubleStringHash{
+
+    List<Long>[] p1, h1, p2, h2;
+    long P1 = 1331, P2 = 13331, mod1 = (long)1e9 + 7, mod2 = (long) 1e9 + 9;
+
+    public MultiDoubleStringHash(int len) {
+        p1 = new ArrayList[len + 1];
+        h1 = new ArrayList[len + 1];
+        p2 = new ArrayList[len + 1];
+        h2 = new ArrayList[len + 1];
+    }
+
+    public MultiDoubleStringHash(int len, long base1, long mod1, long base2, long mod2) {
+        this(len);
+        this.P1 = base1; this.mod1 = mod1;
+        this.P2 = base2; this.mod2 = mod2;
+    }
+
+    public void hash(List<List<Integer>> list) {
+        for (int i = 0; i < list.size(); i++) {
+            int size = list.get(i).size();
+            p1[i]= new ArrayList<>(size + 1);
+            h1[i]= new ArrayList<>(size + 1);
+            p2[i]= new ArrayList<>(size + 1);
+            h2[i]= new ArrayList<>(size + 1);
+            p1[i].add(1L); p2[i].add(1L);
+            h1[i].add(0L); h2[i].add(0L);
+            for (int k = 1; k <= size; k++) {
+                p1[i].add(k, p1[i].get(k - 1) * P1 %  mod1);
+                h1[i].add(k, (h1[i].get(k - 1) * P1 % mod1 + list.get(i).get(k - 1)) % mod1);
+
+                p2[i].add(k, p2[i].get(k - 1) * P2 % mod2);
+                h2[i].add(k, (h2[i].get(k - 1) * P2 % mod2 + list.get(i).get(k - 1)) % mod2);
+            }
+            System.out.println(h1[i].size());
+        }
+    }
+
+    public void hash(int[][] array) {
+        int size = array.length;
+        List<List<Integer>> arrays = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            int n = array[i].length;
+            Integer[] arr = new Integer[n];
+            for (int k = 0; k < n; k++) arr[k] = array[i][k];
+            arrays.add(Arrays.stream(arr).collect(Collectors.toList()));
+        }
+        hash(arrays);
+    }
+
+    public long get1(int idx, int l, int r) {
+        return (h1[idx].get(r) - h1[idx].get(l - 1) * p1[idx].get(r - l + 1) % mod1 + mod1) % mod1;
+    }
+
+    public long get2(int idx, int l, int r) {
+        return (h2[idx].get(r) - h2[idx].get(l - 1) * p2[idx].get(r - l + 1) % mod2 + mod2) % mod2;
+    }
+}

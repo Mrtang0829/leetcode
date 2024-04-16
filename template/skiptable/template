@@ -1,0 +1,267 @@
+package life.tz.data_structure.skiptable;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+
+public class template {
+
+    public static void main(String[] args) {
+        SkipTable table = new SkipTable();
+        for (int i = 0; i < 100; i++) {
+            table.insert(i, i + 1);
+        }
+        for (int i = 0; i <10; i++) {
+            table.insert(i, i + 2);
+        }
+        for (int i = 0; i < 10; i++) {
+            int q = table.query(i * 10 + 1);
+            System.out.println(q);
+        }
+        table.delete(1);
+        System.out.println(table.query(1));
+        table.delete(1);
+        System.out.println(table.query(1));
+//        for (int i = 0; i < 6; i++) {
+//            table.delete(i * 10 + 1);
+//        }
+//        for (int i = 0; i < 10; i++) {
+//            int q = table.query(i * 10 + 1);
+//            System.out.println(q);
+//        }
+    }
+}
+
+
+class SkipTable{
+
+    private final int maxLevel = 16;
+    private int k = 2;
+    private final Random random = new Random();
+
+    private Node head;
+
+    public SkipTable() {
+        head = new Node(-1, -1, maxLevel);
+    }
+
+    public SkipTable(int k) {
+        this();
+        this.k = k;
+    }
+
+    int randomLevel() {
+        int level = 1;
+        while (level < maxLevel && (random.nextInt() % k) == 0) level++;
+        return level;
+    }
+
+
+//    void insert(int key, int data) {
+//        Node prevElem = head;
+//        Node[] prevElemHeaders = new Node[maxLevel];
+//        boolean flag = true;
+//        for (int i = maxLevel - 1; i >= 0 && flag; i--) {
+//            prevElemHeaders[i] = prevElem;
+//            for (Node next = prevElem.level[i]; next != null; next = prevElem.level[i]) {
+//                if (next.key >= key) {
+//                    if (key == next.key) {
+//                        next.data = data;
+//                        flag = false;
+//                    }
+//                    break;
+//                }
+//                prevElem = next;
+//                prevElemHeaders[i] = prevElem;
+//            }
+//        }
+//        if (!flag) return;
+//        int level = randomLevel();
+//        Node node = new Node(key, data, level);
+//        for (int i = level - 1; i >= 0; i--) {
+//            node.level[i] = prevElemHeaders[i].level[i];
+//            prevElemHeaders[i].level[i] = node;
+//        }
+//    }
+
+
+    void insert(int key, int data) {
+        Node prevElem = head;
+        Node[] prevHeaders = new Node[maxLevel];
+        boolean flag = true;
+        for (int i = maxLevel - 1; i >= 0 && flag; i--) {
+            for (Node next = prevElem.level[i]; next != null; next = prevElem.level[i]) {
+                if (next.key >= key) {
+                    if (key == next.key) {
+                        next.data = data;
+                        flag = false;
+                    }
+                    break;
+                }
+                prevElem = next;
+            }
+            prevHeaders[i] = prevElem;
+        }
+        if (!flag) return;
+        int level = randomLevel();
+        Node node = new Node(key, data, level);
+        for (int i = level - 1; i >= 0; i--) {
+            node.level[i] = prevHeaders[i].level[i];
+            prevHeaders[i].level[i] = node;
+        }
+
+    }
+
+    int query(int findKey) {
+        Node prevElem = head;
+        for (int i = maxLevel - 1; i >= 0; i--) {
+            for (Node next = prevElem.level[i]; next != null; next = prevElem.level[i]) {
+                if (next.key >= findKey) {
+                    if (findKey == next.key) return next.data;
+                    break;
+                }
+                prevElem = next;
+            }
+        }
+        return -1;
+    }
+
+    void delete(int findKey) {
+        Node prevElem = head;
+        Node[] prevElemHeaders = new Node[maxLevel];
+        int level = -1;
+        for (int i = maxLevel - 1; i >= 0; i--) {
+            prevElemHeaders[i] = prevElem;
+            for (Node next = prevElem.level[i]; next != null; next = prevElem.level[i]) {
+                if (next.key >= findKey) {
+                    if (findKey == next.key && level == -1) {
+                        level = i;
+                    }
+                    break;
+                }
+                prevElem = next;
+                prevElemHeaders[i] = prevElem;
+            }
+        }
+        for (int i = level; i >= 0; i--) {
+            prevElemHeaders[i].level[i] = prevElemHeaders[i].level[i].level[i];
+        }
+    }
+
+    class Node{
+        int key = -1, data;
+        // next
+        Node[] level;
+        public Node(int key, int data, int levels) {
+            this.key = key;
+            this.data = data;
+            level = new Node[levels];
+        }
+    }
+}
+
+
+// 支持泛型的跳表
+//class SkipList<T>{
+//
+//    private final int maxLevel = 16;
+//    private int k = 2;
+//    private final Random random = new Random();
+//
+//    private Node head;
+//
+//    public SkipList() {
+//        head = new Node(-1, null, maxLevel);
+//    }
+//
+//    public SkipList(int k) {
+//        this();
+//        this.k = k;
+//    }
+//
+//    int randomLevel() {
+//        int level = 1;
+//        while (level < maxLevel && (random.nextInt() % k) == 0) level++;
+//        return level;
+//    }
+//
+//    void insert(int key, int data) {
+//        Node prevElem = head;
+//        Node[] prevElemHeaders = new Node[maxLevel];
+//        for (int i = maxLevel - 1; i >= 0; i--) {
+//            prevElemHeaders[i] = prevElem;
+//            for (Node next = prevElem.level[i]; next != null; next = prevElem.level[i]) {
+//                if (next.key >= key) {
+//                    if (key == next.key) {
+//                        next.data = data;
+//                    }
+//                    break;
+//                }
+//                prevElem = next;
+//                prevElemHeaders[i] = prevElem;
+//            }
+//        }
+//        int level = randomLevel();
+//        Node node = new Node(key, data, level);
+//        for (int i = level - 1; i >= 0; i--) {
+//            node.level[i] = prevElemHeaders[i].level[i];
+//            prevElemHeaders[i].level[i] = node;
+//        }
+//    }
+//
+//    int query(int findKey) {
+//        Node prevElem = head;
+//        for (int i = maxLevel - 1; i >= 0; i--) {
+//            for (Node next = prevElem.level[i]; next != null; next = prevElem.level[i]) {
+//                if (next.key >= findKey) {
+//                    if (findKey == next.key) return next.data;
+//                    break;
+//                }
+//                prevElem = next;
+//            }
+//        }
+//        return -1;
+//    }
+//
+//    void delete(int findKey) {
+//        Node prevElem = head;
+//        Node[] prevElemHeaders = new Node[maxLevel];
+//        int level = -1;
+//        for (int i = maxLevel - 1; i >= 0; i--) {
+//            prevElemHeaders[i] = prevElem;
+//            for (Node next = prevElem.level[i]; next != null; next = prevElem.level[i]) {
+//                if (next.key >= findKey) {
+//                    if (findKey == next.key && level == -1) {
+//                        level = i;
+//                    }
+//                    break;
+//                }
+//                prevElem = next;
+//                prevElemHeaders[i] = prevElem;
+//            }
+//        }
+//        for (int i = level; i >= 0; i--) {
+//            prevElemHeaders[i].level[i] = prevElemHeaders[i].level[i].level[i];
+//        }
+//    }
+//
+//    class Node{
+//        int key = -1;
+//        T data;
+//        List<T> level;
+//        public Node(int key, T data, int levels) {
+//            this.data = data;
+//            level = new ArrayList<T>(levels);
+//            for (int i = 0; i < levels; i++) level.add(null);
+//        }
+//    }
+//}
+
+
+class Element implements Comparator {
+
+    @Override
+    public int compare(Object o1, Object o2) {
+        return 0;
+    }
+}

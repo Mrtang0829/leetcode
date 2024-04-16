@@ -1,0 +1,230 @@
+package life.tz.data_structure.fenwick;
+
+import java.util.*;
+
+public class template {
+
+}
+
+class MaxFenwick {
+    long[] p;
+    int n, offset = 1, flag = 0;
+    boolean begin = true;
+    List<Integer> nums;
+    public MaxFenwick(int len) {
+        n = len + 2;
+        p = new long[len + 5];
+    }
+
+    /**
+     * 支持离散化
+     * @param list
+     * @param begin 正排序
+     */
+    public MaxFenwick(List<Integer> list, boolean begin) {
+        this(list.size());
+        if (begin) Collections.sort(list, (a, b) -> {return a - b;});
+        else Collections.sort(list, (a, b) -> {return b - a;});
+        list = noDup(list);
+        this.flag = 1;
+        this.begin = begin;
+        nums = list;
+    }
+
+    private int lowbit(int x) {
+        return x & -x;
+    }
+
+    public void add(int x, long k) {
+        if (flag == 1) x = find(nums, x);
+        for (int i = x + offset; i <= n; i += lowbit(i)) p[i] = Math.max(p[i], k);
+    }
+
+    public long query(int x) {
+        long ans = 0;
+        if (flag == 1) x = find(nums, x);
+        for (int i = x + offset; i > 0; i -= lowbit(i)) ans = Math.max(ans, p[i]);
+        return ans;
+    }
+
+    private int find(List<Integer> v, long k) {
+        if (!begin) return rebegin_find(v, k);
+        return begin_find(v, k);
+    }
+
+    private int begin_find(List<Integer> v, long k) {
+        int l = 0, r = v.size() - 1;
+        while (l < r) {
+            int mid = l + r >> 1;
+            if (v.get(mid) < k) l = mid + 1;
+            else r = mid;
+        }
+        return l + 1;
+    }
+
+    private int rebegin_find(List<Integer> v, long k) {
+        int l = 0, r = v.size() - 1;
+        while (l < r) {
+            int mid = l + r >> 1;
+            if (v.get(mid) <= k) r = mid;
+            else l = mid + 1;
+        }
+        return l + 1;
+    }
+
+    private List<Integer> noDup(List<Integer> list) {
+        Set<Integer> set = new HashSet<>();
+        List<Integer> ans = new ArrayList<>();
+        for (Integer x : list) {
+            if (set.contains(x)) continue;;
+            ans.add(x);
+            set.add(x);
+        }
+        System.out.println();
+        return ans;
+    }
+}
+
+
+class SumFenwick {
+    long[] p;
+    int n, offset = 1, flag = 0;
+    boolean begin = true;
+    List<Integer> nums;
+    public SumFenwick(int len) {
+        n = len + 2;
+        p = new long[len + 5];
+    }
+
+    public SumFenwick(List<Integer> list, boolean begin) {
+        this(list.size());
+        if (begin) Collections.sort(list, (a, b) -> {return a - b;});
+        else Collections.sort(list, (a, b) -> {return b - a;});
+        list = noDup(list);
+        this.flag = 1;
+        this.begin = begin;
+        nums = list;
+    }
+
+    private int lowbit(int x) {
+        return x & -x;
+    }
+
+    public void add(int x, long k) {
+        if (flag == 1) x = find(nums, x);
+        for (int i = x + offset; i <= n; i += lowbit(i)) p[i] += k;
+    }
+
+    public long query(int x) {
+        long ans = 0;
+        if (flag == 1) x = find(nums, x);
+        for (int i = x + offset; i > 0; i -= lowbit(i)) ans += p[i];
+        return ans;
+    }
+
+    private int find(List<Integer> v, long k) {
+        if (!begin) return rebegin_find(v, k);
+        return begin_find(v, k);
+    }
+
+    private int begin_find(List<Integer> v, long k) {
+        int l = 0, r = v.size() - 1;
+        while (l < r) {
+            int mid = l + r >> 1;
+            if (v.get(mid) < k) l = mid + 1;
+            else r = mid;
+        }
+        return l + 1;
+    }
+
+    private int rebegin_find(List<Integer> v, long k) {
+        int l = 0, r = v.size() - 1;
+        while (l < r) {
+            int mid = l + r >> 1;
+            if (v.get(mid) <= k) r = mid;
+            else l = mid + 1;
+        }
+        return l + 1;
+    }
+
+    public List<Integer> noDup(List<Integer> list) {
+        Set<Integer> set = new HashSet<>();
+        List<Integer> ans = new ArrayList<>();
+        for (Integer x : list) {
+            if (set.contains(x)) continue;;
+            ans.add(x);
+            set.add(x);
+        }
+        return ans;
+    }
+
+    public List<Long> sort(List<Long> list) {
+        Collections.sort(list);
+        return list;
+    }
+}
+
+class TagMaxFenwick {
+    long[] p;
+    int[] tag;
+    int n, offset = 1, Tag = 0;
+    public TagMaxFenwick(int len) {
+        n = len + 2;
+        p = new long[len + 5];
+        tag = new int[len + 5];
+    }
+
+    public void reset() {Tag++;}
+
+    private int lowbit(int x) {
+        return x & -x;
+    }
+
+    public void add(int x, long k) {
+        for (int i = x + offset; i <= n; i += lowbit(i)) {
+            if (tag[i] != Tag) p[i] = 0;
+            p[i] = Math.max(p[i], k); tag[i] = Tag;
+        }
+    }
+
+    public long query(int x) {
+        long ans = 0;
+        for (int i = x + offset; i > 0; i -= lowbit(i)) {
+            if (tag[i] == Tag) ans = Math.max(ans, p[i]);
+        }
+        return ans;
+    }
+}
+
+
+class TagSumFenwick {
+    long[] p;
+    int[] tag;
+    int n, offset = 1, Tag = 0;
+    public TagSumFenwick(int len) {
+        n = len + 2;
+        p = new long[len + 5];
+        tag = new int[len + 5];
+    }
+
+    public void reset() {Tag++;}
+
+    private int lowbit(int x) {
+        return x & -x;
+    }
+
+    public void add(int x, long k) {
+        for (int i = x + offset; i <= n; i += lowbit(i)) {
+            if (tag[i] != Tag) p[i] = 0;
+            p[i] += k; tag[i] = Tag;
+        }
+    }
+
+    public long query(int x) {
+        long ans = 0;
+        for (int i = x + offset; i > 0; i -= lowbit(i)) {
+            if (tag[i] == Tag) ans += p[i];
+        }
+        return ans;
+    }
+}

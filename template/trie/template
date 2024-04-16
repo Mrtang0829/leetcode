@@ -1,0 +1,127 @@
+package life.tz.data_structure.trie;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+public class template {
+
+}
+
+class BitMaxTrie{
+    int bit;
+    Node head;
+    private class Node {
+        Node l, r;
+        int cnt = 0;
+    }
+
+    public BitMaxTrie(int bit) {
+        this.bit = bit;
+        head = new Node();
+    }
+
+    public void add(int x) {
+        Node node = head;
+        for (int k = bit; k >= 0; k--) {
+            if ((1 << k & x) > 0) {
+                if (node.r == null) node.r = new Node();
+                node = node.r;
+            }
+            else {
+                if (node.l == null) node.l = new Node();
+                node = node.l;
+            }
+            node.cnt++;
+        }
+    }
+
+    public void delete(int x) {
+        Node node = head;
+        for (int k = bit; k >= 0; k--) {
+            if ((1 << k & x) > 0) {
+                node = node.r;
+            }
+            else node = node.l;
+            if (node == null) return ;
+            node.cnt--;
+        }
+    }
+
+    public int query(int x) {
+        Node node = head;
+        int ans = 0;
+        for (int k = bit; k >= 0; k--) {
+            ans *= 2;
+            if ((1 << k & x) > 0) {
+                if (node.l != null && node.l.cnt > 0) {
+                    ans++;
+                    node = node.l;
+                }
+                else node = node.r;
+            }
+            else {
+                if (node.r != null && node.r.cnt > 0) {
+                    ans++;
+                    node = node.r;
+                }
+                else node = node.l;
+            }
+            if (node.cnt == 0) return 0;
+        }
+        return ans;
+    }
+}
+
+
+class PrefixTrie{
+    Node head;
+    char first = 'a';
+    private class Node{
+        Node[] child = new Node[26];
+        int cnt = 0, isEnd = 0;
+    }
+    public PrefixTrie() {
+        head = new Node();
+    }
+    public PrefixTrie(char firstCharacter) {
+        this();
+        this.first = firstCharacter;
+    }
+
+    public void add(String s) {
+        Node node = head;
+        for (char c : s.toCharArray()) {
+            int k = c - first;
+            if (node.child[k] == null) node.child[k] = new Node();
+            node = node.child[k];
+            node.cnt++;
+        }
+        node.isEnd = 1;
+    }
+
+    public void delete(String s) {
+        Boolean exist = query(s);
+        if (!exist) return ;
+        Node node = head;
+        for (char c : s.toCharArray()) {
+            int k = c - first;
+            node = node.child[k];
+            node.cnt--;
+        }
+    }
+
+    public Boolean query(String prefix) {
+        Node node = head;
+        for (char c : prefix.toCharArray()) {
+            int k = c - first;
+            if (node.child[k] == null) return false;
+            node = node.child[k];
+            if (node.cnt <= 0) return false;
+        }
+        return node.isEnd == 1;
+    }
+}
+
+

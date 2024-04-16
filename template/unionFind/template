@@ -1,0 +1,70 @@
+package life.tz.data_structure.unionFind;
+
+public class template {
+}
+
+class UnionFind{
+    int[] p, rank;
+
+    int n;
+    public UnionFind(int len) {
+        p = new int[len + 2];
+        for (int i = 0; i < len + 2; i++) p[i] = i;
+        rank = new int[len + 2];
+    }
+
+    public int find(int x) {
+        return p[x] == x ? x : (p[x] = find(p[x]));
+    }
+
+    public void union(int a, int b) {
+        int p1 = find(a), p2 = find(b);
+        if (p1 == p2) return ;
+        if (rank[p1] > rank[p2]) {
+            p[p2] = p1;
+        } else if (rank[p1] < rank[p2]) {
+            p[p1] = p2;
+        } else {
+            p[p2] = p1;
+            rank[p1]++;
+        }
+    }
+
+}
+
+class SizeUnionFind{
+    int[] p, rank;
+    long[] size;
+
+    int n;
+    public SizeUnionFind(int len) {
+        p = new int[len + 2];
+        for (int i = 0; i < len + 2; i++) p[i] = i;
+        rank = new int[len + 2];
+        size = new long[len + 2];
+    }
+
+    public int find(int x) {
+        return p[x] == x ? x : (p[x] = find(p[x]));
+    }
+
+    public void union(int a, int b) {
+        int p1 = find(a), p2 = find(b);
+        if (p1 == p2) return ;
+        if (rank[p1] > rank[p2]) {
+            size[p1] += size[p2];
+            size[p2] = 0;
+            p[p2] = p1;
+        } else if (rank[p1] < rank[p2]) {
+            size[p2] += size[p1];
+            size[p1] = 0;
+            p[p1] = p2;
+        } else {
+            size[p1] += size[p2];
+            size[p2] = 0;
+            p[p2] = p1;
+            rank[p1]++;
+        }
+    }
+
+}

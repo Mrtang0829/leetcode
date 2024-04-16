@@ -1,0 +1,120 @@
+package life.tz.data_structure.multiset;
+
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Random;
+
+public class template {
+
+    public static void main(String[] args) {
+        multiset set = new multiset();
+        set.insert(1);
+        set.insert(5);
+        System.out.println(set.lower_bound(2));
+        set.insert(3);
+        System.out.println(set.lower_bound(2));
+    }
+}
+
+// 基于跳表实现的multiset
+// 测试题 : https://www.lanqiao.cn/problems/8733/submissions/6563235802fb6e000aa91fed/
+// 需要支持 lower_bound, 以支持
+// 需要支持 自定义排序规则 -> 借助泛型以及自定义类的compare接口 未支持
+class multiset {
+    // 支持1 << maxLevel大小数据量
+    private final int maxLevel = 18;
+    private final Node head;
+    private final Random random;
+
+    public multiset() {
+        random = new Random();
+        head = new Node(-1, maxLevel);
+    }
+
+    public void insert(int val) {
+        Node prevElem = head;
+        Node[] prevElemHeaders = new Node[maxLevel];
+        for (int i = maxLevel - 1; i >= 0; i--) {
+            prevElemHeaders[i] = prevElem;
+            for (Node next = prevElem.level[i]; next != null; next = prevElem.level[i]) {
+                if (next.val >= val) break;
+                prevElem = next;
+                prevElemHeaders[i] = prevElem;
+            }
+        }
+        int level = randomLevel();
+        Node node = new Node(val, level);
+        for (int i = level - 1; i >= 0; i--) {
+            node.level[i] = prevElemHeaders[i].level[i];
+            prevElemHeaders[i].level[i] = node;
+        }
+    }
+
+    public int find(int key) {
+        Node prevElem = head;
+        for (int i = maxLevel - 1; i >= 0; i--) {
+            for (Node next = prevElem.level[i]; next != null; next = prevElem.level[i]) {
+                if (next.val >= key) {
+                    if (key == next.val) return next.val;
+                    break;
+                }
+                prevElem = next;
+            }
+        }
+        return -1;
+    }
+
+    public void erase(int key) {
+        Node prevElem = head;
+        Node[] prevElemHeaders = new Node[maxLevel];
+        int level = -1;
+        for (int i = maxLevel - 1; i >= 0; i--) {
+            prevElemHeaders[i] = prevElem;
+            for (Node next = prevElem.level[i]; next != null; next = prevElem.level[i]) {
+                if (next.val >= key) {
+                    if (key == next.val && level == -1) {
+                        level = i;
+                    }
+                    break;
+                }
+                prevElem = next;
+                prevElemHeaders[i] = prevElem;
+            }
+        }
+        for (int i = level; i >= 0; i--) {
+            prevElemHeaders[i].level[i] = prevElemHeaders[i].level[i].level[i];
+        }
+    }
+
+    public int lower_bound(int val) {
+        Node prevElem = head;
+        for (int i = maxLevel - 1; i >= 0; i--) {
+            for (Node next = prevElem.level[i]; next != null; next = prevElem.level[i]) {
+                if (next.val >= val) {
+                    if (val == next.val || i == 0) return next.val;
+                    break;
+                }
+                prevElem = next;
+            }
+        }
+        return -1;
+    }
+
+    int randomLevel() {
+        int level = 1;
+        while (level < maxLevel && (random.nextInt() % 2) == 0) level++;
+        return level;
+    }
+
+    final class Node {
+        int val;
+        Node[] level;
+        public Node(int val, int levels) {
+            this.val = val;
+            level = new Node[levels];
+        }
+    }
+}
+
